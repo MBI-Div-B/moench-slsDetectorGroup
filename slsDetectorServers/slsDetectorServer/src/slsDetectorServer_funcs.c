@@ -4272,7 +4272,7 @@ int copy_detector_server(int file_des) {
             strcpy(mess, retvals);
             // LOG(logERROR, (mess)); already printed in executecommand
         } else if (strstr(retvals, "write error") != NULL) {
-            ret = FAIl;
+            ret = FAIL;
             strcpy(mess, "Out of space in blackfin to copy server. Make space "
                          "and try again.\n");
             LOG(logERROR, (mess));
