@@ -1238,8 +1238,8 @@ int validateAndSetDac(enum dacIndex ind, int val, int mV) {
                     ret = OK;
                 } else {
                     ret = FAIL;
-                        sprintf(mess, "Setting dac %d : wrote %d but read %d\n",
-                                serverDacIndex, val, retval);
+                    sprintf(mess, "Setting dac %d : wrote %d but read %d\n",
+                            serverDacIndex, val, retval);
                     LOG(logERROR, (mess));
                 }
             }
@@ -4271,6 +4271,11 @@ int copy_detector_server(int file_des) {
             ret = FAIL;
             strcpy(mess, retvals);
             // LOG(logERROR, (mess)); already printed in executecommand
+        } else if (strstr(retvals, "write error") != NULL) {
+            ret = FAIl;
+            strcpy(mess, "Out of space in blackfin to copy server. Make space "
+                         "and try again.\n");
+            LOG(logERROR, (mess));
         }
 
         // success
