@@ -1,8 +1,6 @@
-// SPDX-License-Identifier: LGPL-3.0-or-other
-// Copyright (C) 2021 Contributors to the SLS Detector Package
 //#include "sls/ansi.h"
 #include <iostream>
-#define CORR
+//#define CORR
 
 #define C_GHOST 0.0004
 
@@ -62,7 +60,7 @@ int main(int argc, char *argv[]) {
 
   int p=10000;
   int fifosize=1000;
-  int nthreads=10;
+  int nthreads=1;//10;
   int nsubpix=25;
   int etabins=nsubpix*10;
   double etamin=-1, etamax=2;
@@ -73,6 +71,8 @@ int main(int argc, char *argv[]) {
   int ndark=100;
   int ok;
   int iprog=0;
+  
+  int *im,a,b,c,d;
 
   int cf=0;
 
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
   int ncol_cm=CM_ROWS;
   double xt_ghost=C_GHOST;
   moench03CommonMode *cm=NULL;
-  moench03GhostSummation *gs;
+  moench03GhostSummation *gs=NULL;
   double *gainmap=NULL;
   float *gm;
 
@@ -301,6 +301,7 @@ int main(int argc, char *argv[]) {
       if (filebin.is_open()){
 	ff=-1;
 	while (decoder->readNextFrame(filebin, ff, np,buff)) {
+	  cout << ifr << " " << ff << " " << np << endl;
 	  if (np==40) {
 	    mt->pushData(buff);
 	    mt->nextThread();
@@ -308,8 +309,9 @@ int main(int argc, char *argv[]) {
 	    ifr++;
 	    if (ifr%100==0) 
 	      cout << ifr << " " << ff << " " << np << endl;
-	  } else
-	    cout << ifr << " " << ff << " " << np << endl;
+	  } else {
+	    cout << "Packets lost!" << np << endl;
+	  }
 	  ff=-1;
 	}
 	filebin.close();	 
@@ -383,10 +385,16 @@ int main(int argc, char *argv[]) {
       ff=-1;
       ifr=0;
       while (decoder->readNextFrame(filebin, ff, np,buff)) {
+	//cout << ifr << " " << ff << " " << np << endl;
 	if (np==40) {
 	//	cout << "*"<<ifr++<<"*"<<ff<< endl;
 	//	cout << ff << " " << np << endl;
   	//         //push
+	  //cout << ff << " " << decoder->getChannel(buff,0,0) << endl;
+	  // for (int iix=0; iix<400; iix++)
+	  //   for (int iiy=0; iiy<400; iiy++)
+	      
+
 	  mt->pushData(buff);
 	  // 	//         //pop
 	  mt->nextThread();
@@ -405,13 +413,18 @@ int main(int argc, char *argv[]) {
 	      sprintf(ffname,"%s/%s_f%05d.tiff",outdir,fformat,ifile);
 	      sprintf(imgfname,ffname,irun);
 	      //cout << "Writing tiff to " << imgfname << " " << thr1 << endl;
+	      
+	      while (mt->isBusy()) {;}
+	      // im=mt->getImage(a,b,c,d);
+	      // cout << ff << " ** " << im[0] << endl;
 	      mt->writeImage(imgfname, thr1);
 	      mt->clearImage();
 	      ifile++;
 	    }
 	  }
-	} else
-	  cout << ifr << " " << ff << " " << np << endl;
+	} else {
+	  cout << "Packets lost!" << ifr << " " << ff << " " << np << endl;
+	}
 	ff=-1;
       }
       cout << "--" << endl;
