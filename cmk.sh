@@ -1,7 +1,7 @@
 #!/bin/bash
 # SPDX-License-Identifier: LGPL-3.0-or-other
 # Copyright (C) 2021 Contributors to the SLS Detector Package
-CMAKE="cmake3"
+CMAKE="cmake"
 BUILDDIR="build"
 INSTALLDIR=""
 HDF5DIR="/opt/hdf5v1.10.0"

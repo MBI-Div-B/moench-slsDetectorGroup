@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
 
 
     int nx = 400, ny = 400;
-
+    
     decoder->getDetectorSize(nx, ny);
 #ifdef CORR
     int ncol_cm = CM_ROWS;
@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
     double *gainmap = NULL;
     //float *gm;
 
-    int ff, np;
+    int ff, np, fnum;
     // cout << " data size is " << dsize;
 
     ifstream filebin;
@@ -243,6 +243,7 @@ int main(int argc, char *argv[]) {
             if (filebin.is_open()) {
                 ff = -1;
                 while (decoder->readNextFrame(filebin, ff, np, buff)) {
+		  fnum=ff;
                     if (np == 40) {
                         mt->pushData(buff);
                         mt->nextThread();
@@ -352,7 +353,10 @@ int main(int argc, char *argv[]) {
                 ;
             }
             if (nframes >= 0) {
-                if (nframes > 0) {
+                if (nframes ==1) {
+                    sprintf(ffname, "%s/%s_f%05d.tiff", outdir, fformat, fnum);
+                    sprintf(imgfname, (const char*)ffname, irun);
+                } else if (nframes > 0) {
                     sprintf(ffname, "%s/%s_f%05d.tiff", outdir, fformat, ifile);
                     sprintf(imgfname, (const char*)ffname, irun);
                 } else {

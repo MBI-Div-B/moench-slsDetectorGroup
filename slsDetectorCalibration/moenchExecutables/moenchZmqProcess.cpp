@@ -439,8 +439,15 @@ int main(int argc, char *argv[]) {
                 else {
                     if (subframes > 0) {
                         if (insubframe > 0) {
-                            sprintf(ofname, "%s_sf%ld_%ld.tiff", fname.c_str(),
-                                    nnsubframe, fileindex);
+			  if (subframes==1)
+			    sprintf(ofname, "%s_sf%ld_%ld.tiff", fname.c_str(), frameIndex,
+				    fileindex);
+			  else
+			    sprintf(ofname, "%s_sf%ld_%ld.tiff", fname.c_str(), nnsubframe,
+				    fileindex);
+
+                            
+				    //  nnsubframe, fileindex);
                             //		  mt->writeImage(ofname);
                             doutf = new float[nnx * nny];
                             if (subframes > 0 && insubframe != subframes &&
@@ -889,8 +896,14 @@ int main(int argc, char *argv[]) {
                     dout[ix] = 0;
                 doutf[ix] = dout[ix];
             }
-            sprintf(ofname, "%s_sf%ld_%ld.tiff", fname.c_str(), nnsubframe,
-                    fileindex);
+	    // 
+	    
+	    if (subframes==1)
+	      sprintf(ofname, "%s_sf%ld_%ld.tiff", fname.c_str(), frameIndex,
+		      fileindex);
+	    else
+	      sprintf(ofname, "%s_sf%ld_%ld.tiff", fname.c_str(), nnsubframe,
+		      fileindex);
 
             cout << "Writing image to " << ofname << endl;
 
