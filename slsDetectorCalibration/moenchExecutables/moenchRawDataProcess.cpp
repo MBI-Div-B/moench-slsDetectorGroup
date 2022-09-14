@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
     }
 
     int fifosize = 1000;
-    int nthreads = 10;
+    int nthreads = 1;//0;
     int csize = 3;
     int nsigma = 5;
     int nped = 10000;
@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
 
 
     int nx = 400, ny = 400;
-
+    
     decoder->getDetectorSize(nx, ny);
 #ifdef CORR
     int ncol_cm = CM_ROWS;
@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
     double *gainmap = NULL;
     //float *gm;
 
-    int ff, np;
+    int ff, np, fnum;
     // cout << " data size is " << dsize;
 
     ifstream filebin;
@@ -177,16 +177,16 @@ int main(int argc, char *argv[]) {
             cout << "using gain map " << gainfname << endl;
         else
             cout << "Could not open gain map " << gainfname << endl;
-    } else
-        thr = 0.15 * thr;
+    } //else
+      //  thr = 0.15 * thr;
+
     filter->newDataSet();
     //int dsize = decoder->getDataSize();
 
-    if (thr > 0) {
+    if (thr != 0) {
         cout << "threshold is " << thr << endl;
         filter->setThreshold(thr);
         cf = 0;
-
     } else
         cf = 1;
 
@@ -200,20 +200,23 @@ int main(int argc, char *argv[]) {
     // multiThreadedAnalogDetector(filter,nthreads,fifosize);
     multiThreadedCountingDetector *mt =
         new multiThreadedCountingDetector(filter, nthreads, fifosize);
-#ifndef ANALOG
-    mt->setDetectorMode(ePhotonCounting);
-    cout << "Counting!" << endl;
-    if (thr > 0) {
+    //#ifndef ANALOG
+    if (thr>=0) { 
+      mt->setDetectorMode(ePhotonCounting);
+      cout << "Counting!" << endl;
+      if (thr > 0) {
         cf = 0;
-    }
-#endif
+      }
+    //#endif
 //{
-#ifdef ANALOG
-    mt->setDetectorMode(eAnalog);
-    cout << "Analog!" << endl;
-    cf = 0;
+//#ifdef ANALOG
+    } else { 
+      mt->setDetectorMode(eAnalog);
+      cout << "Analog!" << endl;
+      cf = 0;
+    }
     // thr1=thr;
-#endif
+    //#endif
     //  }
 
     mt->StartThreads();
@@ -243,15 +246,18 @@ int main(int argc, char *argv[]) {
             if (filebin.is_open()) {
                 ff = -1;
                 while (decoder->readNextFrame(filebin, ff, np, buff)) {
+		  fnum=ff;
+		  if (fnum % 100 == 1)
+		    cout << "**" << ifr << " " << fnum << " " << decoder->getValue(buff,20,20) << endl;
                     if (np == 40) {
                         mt->pushData(buff);
                         mt->nextThread();
                         mt->popFree(buff);
                         ifr++;
                         if (ifr % 100 == 0)
-                            cout << ifr << " " << ff << " " << np << endl;
+			  cout << "++" << ifr << " " << ff << " " << np << endl;
                     } else
-                        cout << ifr << " " << ff << " " << np << endl;
+		      cout << "--" << ifr << " " << ff << " " << np << endl;
                     ff = -1;
                 }
                 filebin.close();
@@ -322,7 +328,10 @@ int main(int argc, char *argv[]) {
             ff = -1;
             ifr = 0;
             while (decoder->readNextFrame(filebin, ff, np, buff)) {
+	      fnum=ff;
                 if (np == 40) {
+		  if (ff % 100 == 0)
+		    cout << "**" << ifr << " " << fnum << " " << decoder->getValue(buff,20,20) << endl;
                     //         //push
                     mt->pushData(buff);
                     // 	//         //pop
@@ -334,9 +343,13 @@ int main(int argc, char *argv[]) {
                         cout << ifr << " " << ff << endl;
                     if (nframes > 0) {
                         if (ifr % nframes == 0) {
+			  while (mt->isBusy()) {
+			    ;
+			  }
                             sprintf(ffname, "%s/%s_f%05d.tiff", outdir, fformat,
                                     ifile);
                             sprintf(imgfname, (const char*)ffname, irun);
+			    cout << "Writing tiff to " << imgfname << " " << thr1 << endl;
                             mt->writeImage(imgfname, thr1);
                             mt->clearImage();
                             ifile++;
@@ -352,7 +365,10 @@ int main(int argc, char *argv[]) {
                 ;
             }
             if (nframes >= 0) {
-                if (nframes > 0) {
+                if (nframes ==1) {
+                    sprintf(ffname, "%s/%s_f%05d.tiff", outdir, fformat, fnum);
+                    sprintf(imgfname, (const char*)ffname, irun);
+                } else if (nframes > 0) {
                     sprintf(ffname, "%s/%s_f%05d.tiff", outdir, fformat, ifile);
                     sprintf(imgfname, (const char*)ffname, irun);
                 } else {
