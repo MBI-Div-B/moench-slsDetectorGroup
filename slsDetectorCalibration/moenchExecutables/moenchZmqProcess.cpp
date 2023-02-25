@@ -22,7 +22,7 @@
 #ifdef MOENCH04
 #include "moench04CtbZmq10GbData.h"
 #endif
-
+// lrlunin: here is a class for applying common mode correction (relative path: ../moench03CommonMode.h)
 #include "moench03CommonMode.h"
 #include "moench03GhostSummation.h"
 #include "sls/tiffIO.h"
@@ -168,7 +168,7 @@ int main(int argc, char *argv[]) {
 
     // int ncol_cm=CM_ROWS;
     // double xt_ghost=C_GHOST;
-
+    // lrlunin: CM_ROWS is 20 and corresponds to 20 upper and lower rows in "moench03CommonMode.h"
     cm = new moench03CommonMode(CM_ROWS);
     gs = new moench03GhostSummation(det, C_GHOST);
 #endif
