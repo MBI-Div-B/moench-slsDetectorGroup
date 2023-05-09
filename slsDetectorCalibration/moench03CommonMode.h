@@ -2,22 +2,30 @@
 // Copyright (C) 2021 Contributors to the SLS Detector Package
 #ifndef MOENCH03COMMONMODE_H
 #define MOENCH03COMMONMODE_H
-
+// lrlunin: please note that the "New" version will be used, not the old one!
 #include "commonModeSubtractionNew.h"
 
 class commonModeSubtractionColumn : public commonModeSubtraction {
+  // lrlunin: rows(nr) is nothing but assigning "rows = 20"
   public:
     commonModeSubtractionColumn(int nr = 200)
         : commonModeSubtraction(800), rows(nr){};
+    // lrlunin: this code is defining different ROIs for common mode eliminating
+    // there are 32 ROIs which correspond to 16 columns and 2 rows
     virtual int getROI(int ix, int iy) { return ix + (iy / 200) * 400; };
 
     virtual void addToCommonMode(double val, int ix = 0, int iy = 0) {
+        // lrlunin: in this "if" statement only the upper and lower 20 rows of the 32 ROIs will be
+        // considered for commonMode offset evaluation
         if (iy < rows || iy > 399 - rows) {
             int iroi = getROI(ix, iy);
             // cout << iy << " " << ix << " " << iroi ;
             if (iroi >= 0 && iroi < nROI) {
+                // lrlunin: in this method in mean variable only the sum of all pixels will be asserted
+                // the real mean value (division with nCm) will be done in "commonModeSubtractionNew.h"
                 mean[iroi] += val;
                 mean2[iroi] += val * val;
+                // lrlunin: nCm is the amount of accumulated pixels
                 nCm[iroi]++;
                 if (nCm[iroi] > rows)
                     std::cout << "Too many pixels added " << nCm[iroi] << std::endl;

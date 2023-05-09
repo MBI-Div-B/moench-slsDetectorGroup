@@ -88,6 +88,7 @@ class commonModeSubtraction {
         \return the difference  between the current average sum of pedestals and
        the average pedestal
     */
+    // lrlunin: only at getCommonMode the mean value will be calculated
     virtual double getCommonMode(int ix = 0, int iy = 0) {
         int iroi = getROI(ix, iy);
         /* if (iroi==0) */
@@ -99,6 +100,7 @@ class commonModeSubtraction {
         // mean[iroi]/nCm[iroi] << endl;
         if (iroi >= 0 && iroi < nROI) {
             if (nCm[iroi] > 0)
+                // lrlunin: division of accumulated sum through the amount of considered points
                 return mean[iroi] / nCm[iroi];
         }
         return 0;
